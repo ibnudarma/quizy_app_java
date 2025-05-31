@@ -9,24 +9,32 @@ public class QuizInputPage extends JFrame {
     public QuizInputPage(User user) {
         this.user = user;
 
-        setTitle("Input Tema Quiz");
-        setSize(400, 200);
+        setTitle("Input Tema dan Jumlah Quiz");
+        setSize(400, 250);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
         JPanel panel = new JPanel();
         panel.setLayout(null);
 
-        JLabel label = new JLabel("Masukkan tema quiz (max 20 karakter):");
-        label.setBounds(10, 20, 350, 25);
-        panel.add(label);
+        JLabel labelTema = new JLabel("Masukkan tema quiz (5 - 30 karakter):");
+        labelTema.setBounds(10, 20, 350, 25);
+        panel.add(labelTema);
 
         JTextField themeInput = new JTextField();
         themeInput.setBounds(10, 50, 360, 25);
         panel.add(themeInput);
 
+        JLabel labelJumlah = new JLabel("Masukkan jumlah soal (1 - 10):");
+        labelJumlah.setBounds(10, 90, 350, 25);
+        panel.add(labelJumlah);
+
+        JTextField jumlahInput = new JTextField();
+        jumlahInput.setBounds(10, 120, 360, 25);
+        panel.add(jumlahInput);
+
         JButton submitBtn = new JButton("Generate Quiz");
-        submitBtn.setBounds(10, 90, 150, 30);
+        submitBtn.setBounds(10, 160, 150, 30);
         panel.add(submitBtn);
 
         add(panel);
@@ -34,25 +42,39 @@ public class QuizInputPage extends JFrame {
 
         submitBtn.addActionListener(e -> {
             String tema = themeInput.getText().trim();
-            if (tema.isEmpty() || tema.length() > 20) {
-                JOptionPane.showMessageDialog(this, "Tema harus diisi dan maksimal 20 karakter.");
+            String jumlahStr = jumlahInput.getText().trim();
+
+            if (tema.isEmpty() || tema.length() < 5 || tema.length() > 30) {
+                JOptionPane.showMessageDialog(this, "Tema harus diisi, minimal 5 dan maksimal 20 karakter.");
                 return;
             }
 
-            // Disable tombol untuk mencegah klik berulang saat loading
+            int jumlahSoal;
+            try {
+                jumlahSoal = Integer.parseInt(jumlahStr);
+                if (jumlahSoal < 1 || jumlahSoal > 10) {
+                    JOptionPane.showMessageDialog(this, "Jumlah soal harus antara 1 sampai 10.");
+                    return;
+                }
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(this, "Jumlah soal harus berupa angka yang valid.");
+                return;
+            }
+
             submitBtn.setEnabled(false);
-            submitInBackground(tema, submitBtn);
+            submitInBackground(tema, jumlahSoal, submitBtn);
         });
+
     }
 
-    private void submitInBackground(String tema, JButton buttonToEnable) {
+    private void submitInBackground(String tema, int jumlahSoal, JButton buttonToEnable) {
         SwingWorker<Void, Void> worker = new SwingWorker<>() {
             private List<GeminiApi.QuizQuestion> quizList;
 
             @Override
             protected Void doInBackground() {
                 try {
-                    quizList = GeminiApi.generateQuiz(tema);
+                    quizList = GeminiApi.generateQuiz(tema, jumlahSoal);
                 } catch (Exception ex) {
                     ex.printStackTrace();
                     JOptionPane.showMessageDialog(
@@ -73,7 +95,7 @@ public class QuizInputPage extends JFrame {
                 } else {
                     JOptionPane.showMessageDialog(
                             QuizInputPage.this,
-                            "Gagal membuat kuis. Coba tema lain.",
+                            "Gagal membuat kuis. Coba tema lain atau jumlah soal lain.",
                             "Error", JOptionPane.ERROR_MESSAGE
                     );
                 }

@@ -9,7 +9,7 @@ public class GeminiApiTest {
 
     @Test
     void testGenerateContent() throws Exception {
-            List<GeminiApi.QuizQuestion> result = GeminiApi.generateQuiz("Python");
+            List<GeminiApi.QuizQuestion> result = GeminiApi.generateQuiz("Python", 5);
             result.forEach(quizQuestion -> {
                 System.out.println(quizQuestion.answer);
             });

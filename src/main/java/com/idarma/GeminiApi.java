@@ -13,11 +13,11 @@ public class GeminiApi {
     private static final String MODEL_NAME = "gemini-2.0-flash";
     private static final ObjectMapper mapper = new ObjectMapper();
 
-    public static List<QuizQuestion> generateQuiz(String tema) throws Exception {
+    public static List<QuizQuestion> generateQuiz(String tema, Integer jumlahSoal) throws Exception {
         try (Client client = new Client()) {
             GenerateContentResponse response = client.models.generateContent(
                     MODEL_NAME,
-                    "Buatkan 5 soal kuis pilihan ganda tentang tema: " + tema +
+                    "Buatkan" + jumlahSoal + " soal kuis pilihan ganda tentang tema: " + tema +
                             ". Formatkan output sebagai JSON array saja, dengan tiap objek berisi 'question', 'options' (array), dan 'answer'.",
                     null
             );
